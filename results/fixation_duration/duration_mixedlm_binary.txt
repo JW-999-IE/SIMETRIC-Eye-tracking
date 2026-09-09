@@ -1,0 +1,19 @@
+                           Mixed Linear Model Regression Results
+============================================================================================
+Model:                    MixedLM       Dependent Variable:       log_mean_fixation_duration
+No. Observations:         403           Method:                   ML                        
+No. Groups:               27            Scale:                    0.4261                    
+Min. group size:          7             Log-Likelihood:           -438.8990                 
+Max. group size:          18            Converged:                Yes                       
+Mean group size:          14.9                                                              
+--------------------------------------------------------------------------------------------
+                                                  Coef.  Std.Err.   z    P>|z| [0.025 0.975]
+--------------------------------------------------------------------------------------------
+Intercept                                          7.176    0.205 35.064 0.000  6.775  7.577
+C(Device_name, Treatment(reference='ATG'))[T.CON]  0.065    0.084  0.769 0.442 -0.100  0.229
+C(Device_name, Treatment(reference='ATG'))[T.MST] -0.010    0.080 -0.126 0.900 -0.167  0.147
+C(AnyExperience)[T.Any previous experience]       -0.352    0.277 -1.272 0.203 -0.896  0.191
+Repetition_c                                      -0.136    0.121 -1.125 0.261 -0.372  0.101
+Attempt_sequence_c                                 0.071    0.039  1.836 0.066 -0.005  0.147
+Group Var                                          0.488    0.224                           
+============================================================================================

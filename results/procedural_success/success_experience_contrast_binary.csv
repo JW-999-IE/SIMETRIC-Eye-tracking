@@ -1,0 +1,2 @@
+Comparison,Log_odds_difference,SE,z_value,p_unadjusted,Odds_ratio,CI_low,CI_high,p_Holm,p_Holm_formatted
+Any previous experience vs No previous experience,0.3994022770160027,0.468133929614419,0.8531795107117583,0.3935597639159528,1.4909332661724746,0.5956272511959902,3.732001851352981,0.3935597639159528,0.394

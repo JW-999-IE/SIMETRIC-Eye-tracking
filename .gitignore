@@ -1,0 +1,25 @@
+# Raw data (too large / privacy-restricted)
+data/raw/*.tsv
+data/raw/*.xlsx
+data/raw/*.xls
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary
+*.tmp
+*.bak

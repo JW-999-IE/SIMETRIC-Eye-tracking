@@ -1,0 +1,23 @@
+                     NegativeBinomial Regression Results                      
+==============================================================================
+Dep. Variable:         Fixation_count   No. Observations:                  403
+Model:               NegativeBinomial   Df Residuals:                      396
+Method:                           MLE   Df Model:                            6
+Date:                Tue, 04 Aug 2026   Pseudo R-squ.:                 0.01841
+Time:                        14:42:33   Log-Likelihood:                -1911.0
+converged:                       True   LL-Null:                       -1946.8
+Covariance Type:            nonrobust   LLR p-value:                 1.840e-13
+=====================================================================================================================
+                                                        coef    std err          z      P>|z|      [0.025      0.975]
+---------------------------------------------------------------------------------------------------------------------
+Intercept                                            -0.5565      0.108     -5.135      0.000      -0.769      -0.344
+C(Device_name, Treatment(reference='ATG'))[T.CON]     0.1506      0.103      1.466      0.143      -0.051       0.352
+C(Device_name, Treatment(reference='ATG'))[T.MST]    -0.5142      0.099     -5.197      0.000      -0.708      -0.320
+C(Experience3)[T.Some prior experience]              -0.4410      0.118     -3.748      0.000      -0.672      -0.210
+C(Experience3)[T.No prior experience]                -0.5027      0.110     -4.553      0.000      -0.719      -0.286
+Repetition_c                                         -0.2010      0.125     -1.606      0.108      -0.446       0.044
+Attempt_sequence_c                                    0.0344      0.041      0.846      0.398      -0.045       0.114
+alpha                                                 0.6295      0.043     14.613      0.000       0.545       0.714
+=====================================================================================================================
+
+Estimated alpha used in GEE: 0.629452

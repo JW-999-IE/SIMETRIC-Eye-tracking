@@ -1,0 +1,28 @@
+                               GEE Regression Results                              
+===================================================================================
+Dep. Variable:               Saccade_count   No. Observations:                  403
+Model:                                 GEE   No. clusters:                       27
+Method:                        Generalized   Min. cluster size:                   7
+                      Estimating Equations   Max. cluster size:                  18
+Family:                   NegativeBinomial   Mean cluster size:                14.9
+Dependence structure:         Exchangeable   Num. iterations:                    13
+Date:                     Tue, 04 Aug 2026   Scale:                           1.000
+Covariance type:              bias_reduced   Time:                         16:43:55
+===========================================================================================================================================================
+                                                                                              coef    std err          z      P>|z|      [0.025      0.975]
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+Intercept                                                                                  -0.1298      0.323     -0.402      0.688      -0.763       0.504
+C(Device_name, Treatment(reference='ATG'))[T.CON]                                           0.0953      0.086      1.106      0.269      -0.074       0.264
+C(Device_name, Treatment(reference='ATG'))[T.MST]                                          -0.5564      0.105     -5.298      0.000      -0.762      -0.351
+C(Experience3, Treatment(reference='Higher prior experience'))[T.Some prior experience]    -0.5178      0.399     -1.298      0.194      -1.300       0.264
+C(Experience3, Treatment(reference='Higher prior experience'))[T.No prior experience]      -0.6049      0.355     -1.702      0.089      -1.301       0.092
+Repetition_c                                                                                0.0080      0.131      0.061      0.952      -0.249       0.264
+Attempt_sequence_c                                                                         -0.0398      0.052     -0.762      0.446      -0.142       0.063
+==============================================================================
+Skew:                          5.2129   Kurtosis:                      44.9974
+Centered skew:                 5.0348   Centered kurtosis:             49.1461
+==============================================================================
+
+Count family: NegativeBinomial.
+Alpha estimated by independent NB likelihood: 0.754335
+Method: clustered count GEE; participant cluster; working correlation=Exchangeable; covariance=bias_reduced; whole-attempt duration offset.

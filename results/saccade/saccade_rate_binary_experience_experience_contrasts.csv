@@ -1,0 +1,2 @@
+Comparison,Log_ratio,SE,z_value,p_unadjusted,Incidence_rate_ratio,CI_low,CI_high,p_Holm,p_Holm_formatted
+Any previous experience vs No previous experience,0.3011168597060353,0.2569429210744738,1.1719212128780845,0.24122868951556753,1.3513672526910057,0.8166936158957314,2.2360814583357653,0.24122868951556753,0.241

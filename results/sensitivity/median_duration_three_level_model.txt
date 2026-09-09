@@ -1,0 +1,28 @@
+                                              Mixed Linear Model Regression Results
+==================================================================================================================================
+Model:                                MixedLM                   Dependent Variable:                   log_median_fixation_duration
+No. Observations:                     403                       Method:                               ML                          
+No. Groups:                           27                        Scale:                                0.5362                      
+Min. group size:                      7                         Log-Likelihood:                       -480.2701                   
+Max. group size:                      18                        Converged:                            Yes                         
+Mean group size:                      14.9                                                                                        
+----------------------------------------------------------------------------------------------------------------------------------
+                                                                                        Coef.  Std.Err.   z    P>|z| [0.025 0.975]
+----------------------------------------------------------------------------------------------------------------------------------
+Intercept                                                                                5.605    0.304 18.425 0.000  5.009  6.202
+C(Device_name, Treatment(reference='ATG'))[T.CON]                                        0.061    0.094  0.652 0.514 -0.123  0.246
+C(Device_name, Treatment(reference='ATG'))[T.MST]                                       -0.088    0.090 -0.975 0.329 -0.264  0.088
+C(Experience3, Treatment(reference='Higher prior experience'))[T.Some prior experience]  0.585    0.375  1.562 0.118 -0.149  1.319
+C(Experience3, Treatment(reference='Higher prior experience'))[T.No prior experience]    0.799    0.353  2.263 0.024  0.107  1.490
+Repetition_c                                                                            -0.100    0.135 -0.742 0.458 -0.365  0.164
+Attempt_sequence_c                                                                       0.052    0.043  1.207 0.227 -0.033  0.137
+Group Var                                                                                0.414    0.175                           
+==================================================================================================================================
+
+
+Outcome: log attempt-level median fixation duration in milliseconds
+Transformation: natural logarithm.
+Method: linear mixed-effects model with participant random intercept.
+Optimiser: powell.
+Estimated participant random-intercept variance: 0.413663.
+Exponentiated estimates are geometric mean ratios.

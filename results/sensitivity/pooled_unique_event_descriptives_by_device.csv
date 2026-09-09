@@ -1,0 +1,4 @@
+Device_name,Unique_fixation_events,Median_event_duration_ms,Q1_event_duration_ms,Q3_event_duration_ms,IQR_event_duration_ms,Events_gt_10_seconds
+ATG,7351.0,220.0,100.0,661.0,561.0,76.0
+CON,7795.0,240.0,100.0,701.5,601.5,52.0
+MST,7246.0,240.0,100.0,761.0,661.0,90.0

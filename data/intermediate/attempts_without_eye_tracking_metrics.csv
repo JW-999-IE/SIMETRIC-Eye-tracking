@@ -1,0 +1,1 @@
+Id,Round,Time,Device,FTIS,Start time (ms),End Time (ms),Duration (ms),Needle In (ms),Wire In (ms),Needle Out (ms),Catheter Over Needle (ms),Wire Out (ms),Participant_raw,Participant,Expertise,Abort_participant,Device_name,Repetition,Device_code_clean,Attempt_start_ms,Attempt_end_ms,Attempt_duration_ms,Success,Attempt_sequence,Attempt_ID,Session_index

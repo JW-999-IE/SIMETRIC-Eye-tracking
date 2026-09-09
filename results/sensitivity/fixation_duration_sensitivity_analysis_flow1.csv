@@ -1,0 +1,3 @@
+Analysis,Attempts,Participants,Unique_fixation_events_initial,Events_excluded_gt_10_seconds,Attempts_affected_by_gt_10_seconds,Attempts_excluded_no_retained_events
+Attempt-level median fixation duration,403,27,22392,0,0,0
+Mean fixation duration after excluding events >10 seconds,402,27,22392,218,124,1

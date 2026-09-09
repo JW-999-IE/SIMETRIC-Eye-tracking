@@ -1,0 +1,4 @@
+Device_name,Participants,Attempts,Median_attempt_median_fixation_ms,Q1_attempt_median_fixation_ms,Q3_attempt_median_fixation_ms,IQR_attempt_median_fixation_ms,Median_attempt_mean_fixation_ms,Q1_attempt_mean_fixation_ms,Q3_attempt_mean_fixation_ms
+ATG,27.0,139.0,390.5,220.75,972.0,751.25,1112.8333333333333,560.3397271952259,2143.3552123552126
+CON,27.0,131.0,400.0,220.25,916.25,696.0,1001.725,550.1764705882354,2334.0373062015506
+MST,27.0,133.0,350.0,201.0,781.0,580.0,1205.967741935484,513.6,2065.762711864407
