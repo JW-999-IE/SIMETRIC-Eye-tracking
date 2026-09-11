@@ -23,7 +23,11 @@ SIMETRIC-eye-tracking-repository/
 │   ├── 03_confirmatory_fixation_models.py # NB-GEE (count) + LMM (duration)
 │   ├── 04_saccade_analysis.py            # Saccade rate and amplitude GEE
 │   ├── 05_fixation_duration_sensitivity.py # Median/trimmed-mean sensitivity
-│   └── 06_generate_figures.py            # Figure generation (placeholder)
+│   ├── 06_temporal_tercile_analysis.py   # Device × Tercile interaction NB-GEE
+│   ├── 07_mst_phase_analysis.py          # Poisson GEE phase analysis + NB-GEE sensitivity
+│   ├── 08_bayesian_sensitivity.py        # PyMC cell-means models (count, duration, success)
+│   ├── 09_thirty_clinician_sensitivity.py # NB-GEE robustness with N=30
+│   └── 10_generate_figures.py            # Figures 3–6 generation
 │
 ├── data/
 │   ├── raw/                              # NOT INCLUDED — see Data Availability
@@ -45,7 +49,11 @@ SIMETRIC-eye-tracking-repository/
 │   ├── fixation_duration/                # LMM fixation duration outputs
 │   ├── procedural_success/               # Logistic GEE success outputs
 │   ├── saccade/                          # Saccade rate/amplitude outputs
-│   └── sensitivity/                      # Duration sensitivity checks
+│   ├── sensitivity/                      # Duration sensitivity checks
+│   ├── temporal_tercile/                 # Temporal tercile interaction analysis
+│   ├── mst_phase/                        # MST Seldinger phase analysis
+│   ├── bayesian/                         # Bayesian sensitivity posteriors
+│   └── thirty_clinician_sensitivity/     # N=30 robustness check
 │
 └── figures/
     ├── fig_flow_diagram.png              # Figure 3: Analysis flow
@@ -108,6 +116,43 @@ Two robustness checks for fixation duration:
 1. Attempt-level **median** fixation duration (LMM, log-transformed)
 2. **Trimmed mean** excluding individual fixation events >10 s (LMM, log-transformed)
 
+### Step 6: Temporal Tercile Analysis (`06_temporal_tercile_analysis.py`)
+
+NB-GEE with Device × Tercile interaction, participant clustering:
+- Each attempt divided into three equal-duration temporal terciles (T1, T2, T3)
+- Tests whether fixation-rate decline across attempt phases differs by device
+- Reports marginal tercile contrasts and device-specific tercile contrasts
+- Main-effects (no interaction) model for comparison
+
+### Step 7: MST Phase Analysis (`07_mst_phase_analysis.py`)
+
+Phase-level fixation-rate analysis across the five Seldinger phases of MST insertion:
+- **Primary:** Poisson GEE with clinician clustering, Pre-needle as reference
+- **Sensitivity:** NB-GEE with identical specification
+- 10 pairwise phase contrasts with Holm correction
+
+### Step 8: Bayesian Sensitivity (`08_bayesian_sensitivity.py`)
+
+Three PyMC cell-means models with participant random intercepts:
+1. **Fixation count:** negative-binomial, log(attempt seconds) offset
+2. **Fixation duration:** log-normal on seconds
+3. **Procedural success:** Bernoulli (logit-link)
+
+Priors: Normal(0, 2) cell means, HalfNormal(0.5) participant SD, HalfNormal(1) residual SD.
+Sampling: 4 chains × 2000 post-warmup draws, 1000 warmup, target_accept = 0.95.
+
+### Step 9: 30-Clinician Sensitivity (`09_thirty_clinician_sensitivity.py`)
+
+Robustness check: refit NB-GEE fixation-count model on all 30 recruited clinicians (including 3 discontinued: P7, P8, P14). All 24 discontinued-clinician attempts coded as unsuccessful.
+
+### Step 10: Figure Generation (`10_generate_figures.py`)
+
+Generates Figures 3–6:
+- **Figure 3:** Analysis flow diagram (participant/attempt exclusion)
+- **Figure 4:** Bayesian posterior forest plot (fixation count IRR)
+- **Figure 5:** Temporal tercile fixation distributions by device
+- **Figure 6:** MST Seldinger phase fixation-rate profiles
+
 ## Key Technical Details
 
 ### Eye-Tracking Hardware and Software
@@ -130,9 +175,10 @@ Procedure timestamps (needle-in, wire-in, etc.) were recorded within Tobii Pro L
 The 3 MST attempts excluded as "zero gaze" (P2_T6_DEVICE1-2, P2_T11_DEVICE1-4, P2_T13_DEVICE1-5) are from P2's Recording 16, in which **all 8 attempts across all 3 devices** had zero AOI-mapped fixations despite high valid-sample proportions (>91%). This pattern indicates a session-wide scene-to-AOI mapping failure, not a behavioural choice. The eye tracker was functioning normally; the gaze-to-surface mapping was unsuccessful for this entire recording session. See `data/processed/attempts_with_zero_mapped_fixations.csv` for the full list of 11 affected attempts (8 from P2 Recording 16, 3 from P27 Recording 71).
 
 ### Statistical Models
-- **GEE:** Participant-clustered with exchangeable working correlation (statsmodels)
-- **Bayesian:** Cell-means parameterisation (3 devices × 3 terciles), participant random intercepts, weakly informative priors. Posteriors described with HDI-based language, not frequentist "significant/non-significant".
+- **GEE:** Participant-clustered with exchangeable working correlation, bias-reduced covariance (statsmodels)
+- **Bayesian:** Cell-means parameterisation (one parameter per device level), participant random intercepts, weakly informative priors. Posteriors described with HDI-based language, not frequentist "significant/non-significant".
 - **MST phase analysis:** Poisson GEE with clinician clustering, Pre-needle as reference. Holm correction across 10 pairwise comparisons. NB-GEE sensitivity check.
+- **Temporal tercile:** NB-GEE with Device × Tercile interaction to test differential fixation-rate decline across attempt phases.
 
 ## Data Availability
 
@@ -144,24 +190,22 @@ The 3 MST attempts excluded as "zero gaze" (P2_T6_DEVICE1-2, P2_T11_DEVICE1-4, P
 
 ```
 Python ≥ 3.9
-numpy
-pandas
-scipy
-statsmodels
-openpyxl          # for reading insertion.xlsx
-matplotlib        # for figure generation
-seaborn
+numpy, pandas, scipy, statsmodels, openpyxl
+matplotlib, seaborn                          # figures
+pymc ≥ 5.0, arviz ≥ 0.15                    # Bayesian models (Step 8 only)
 ```
 
 Install: `pip install -r requirements.txt`
 
+**Note:** PyMC and ArviZ are only required for `08_bayesian_sensitivity.py`. All other scripts run with the core statistical stack (numpy, pandas, scipy, statsmodels).
+
 ## Reproduction
 
 1. Place raw TSV files and `insertion.xlsx` in `data/raw/`
-2. Run scripts in order: `python scripts/01_extract_fixations.py` through `05_fixation_duration_sensitivity.py`
+2. Run scripts in order: `python scripts/01_extract_fixations.py` through `10_generate_figures.py`
 3. Each script auto-detects input files and writes results to `results/`
 
-Scripts are designed to run from the repository root or from the `scripts/` directory.
+Scripts 06–10 depend only on processed data files in `data/processed/` and can be run independently of Steps 1–5.
 
 ## License
 
