@@ -207,10 +207,4 @@ Install: `pip install -r requirements.txt`
 
 Scripts 06–10 depend only on processed data files in `data/processed/` and can be run independently of Steps 1–5.
 
-## License
 
-[To be determined — consult institutional policy]
-
-## Citation
-
-[Manuscript reference to be added upon acceptance]
