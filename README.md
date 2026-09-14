@@ -1,210 +1,176 @@
 # SIMETRIC Eye-Tracking Analysis
 
-Analysis code and processed data for the SIMETRIC study: **Simulation-Based Training for Midline Catheter Insertion — Eye-Tracking and Procedural Outcomes**.
-
-Submitted to *Behavior Research Methods*.
+Analysis code and processed data for the SIMETRIC study: **Simulation and Imaging Methods for
+Eye Tracking and Recording Intravenous Catheter insertion**.
 
 ## Study Overview
 
-SIMETRIC is a randomised crossover study in which 30 clinicians (27 retained after 3 discontinued) each performed 5 rounds of midline catheter insertions on a simulation model using three ultrasound-guidance devices (CON, ATG, MST) under Tobii Pro Glasses 3 eye tracking (100 Hz, I-VT fixation filter: velocity threshold 30°/s, minimum fixation duration 60 ms). The primary outcomes are ultrasound-screen fixation behaviour (count, duration, rate) and procedural success (first-attempt catheter placement), analysed with participant-clustered generalised estimating equations (GEE) and Bayesian sensitivity models.
+SIMETRIC is a counterbalanced, repeated-measures simulation study in which 30 clinicians
+(27 retained after 3 discontinued) each performed five insertions with each of three
+ultrasound-guided **long peripheral catheter (LPC)** configurations — catheter-over-needle
+(CON), accelerated technique with guidewire (ATG), and modified Seldinger technique (MST) —
+on a vascular-access phantom, while wearing Tobii Pro Glasses 3.
 
-## Repository Structure
+Outcomes include procedural success and duration, ultrasound-display gaze behaviour, hand
+kinematics, needle-entry grip posture and post-simulation survey measures. Primary inference
+uses participant-clustered generalised estimating equations (GEE), with Bayesian mixed-effects
+models as sensitivity analyses.
 
-```
-SIMETRIC-eye-tracking-repository/
-├── README.md                     # This file
-├── CODEBOOK.md                   # Variable definitions for all datasets
-├── requirements.txt              # Python dependencies
-├── .gitignore
-│
-├── scripts/
-│   ├── 01_extract_fixations.py           # Raw TSV → attempt-level fixation metrics
-│   ├── 02_procedural_success_gee.py      # Logistic GEE for first-attempt success
-│   ├── 03_confirmatory_fixation_models.py # NB-GEE (count) + LMM (duration)
-│   ├── 04_saccade_analysis.py            # Saccade rate and amplitude GEE
-│   ├── 05_fixation_duration_sensitivity.py # Median/trimmed-mean sensitivity
-│   ├── 06_temporal_tercile_analysis.py   # Device × Tercile interaction NB-GEE
-│   ├── 07_mst_phase_analysis.py          # Poisson GEE phase analysis + NB-GEE sensitivity
-│   ├── 08_bayesian_sensitivity.py        # PyMC cell-means models (count, duration, success)
-│   ├── 09_thirty_clinician_sensitivity.py # NB-GEE robustness with N=30
-│   └── 10_generate_figures.py            # Figures 3–6 generation
-│
-├── data/
-│   ├── raw/                              # NOT INCLUDED — see Data Availability
-│   │   └── .gitkeep
-│   ├── processed/
-│   │   ├── model_dataset_attempt_level.csv        # Main analysis dataset (N=403)
-│   │   ├── phase_analysis_mst_phases.csv          # MST phase-level data (N=124 attempts)
-│   │   ├── phase_analysis_temporal_thirds.csv     # Temporal tercile analysis
-│   │   └── attempts_with_zero_mapped_fixations.csv # QC: zero-gaze verification
-│   └── intermediate/
-│       ├── attempt_intervals_cleaned.csv
-│       ├── file_level_QC.csv
-│       ├── session_recording_map.csv
-│       ├── fixation_events_unique_all_recordings.csv
-│       └── attempts_without_eye_tracking_metrics.csv
-│
-├── results/
-│   ├── fixation_count/                   # NB-GEE fixation count outputs
-│   ├── fixation_duration/                # LMM fixation duration outputs
-│   ├── procedural_success/               # Logistic GEE success outputs
-│   ├── saccade/                          # Saccade rate/amplitude outputs
-│   ├── sensitivity/                      # Duration sensitivity checks
-│   ├── temporal_tercile/                 # Temporal tercile interaction analysis
-│   ├── mst_phase/                        # MST Seldinger phase analysis
-│   ├── bayesian/                         # Bayesian sensitivity posteriors
-│   └── thirty_clinician_sensitivity/     # N=30 robustness check
-│
-└── figures/
-    ├── fig_flow_diagram.png              # Figure 3: Analysis flow
-    ├── fig_bayesian_forest.png           # Figure 4: Bayesian forest plot
-    ├── fig_temporal_tercile.png          # Figure 5: Temporal tercile distributions
-    └── fig_mst_phases.png               # Figure 6: MST phase analysis
-```
-
-## Analysis Pipeline
-
-The pipeline runs sequentially. Each script reads from the `data/` directory and writes results to `results/`.
-
-### Step 1: Fixation Extraction (`01_extract_fixations.py`)
-
-Reads 59 raw Tobii Pro Lab TSV exports and the observation log (`insertion.xlsx`) to:
-- Parse attempt intervals from the observation log
-- Extract unique ultrasound-mapped fixation events per attempt
-- Compute attempt-level metrics: fixation count, mean/median duration, fixation rate, valid sample proportion
-- Identify and flag: multi-puncture attempts, zero-mapped-fixation attempts, duplicate recordings, mapping failures
-- Output: `model_dataset_attempt_level.csv` (403 gaze-valid attempts) and QC audit files
-
-**Exclusion flow (whole-attempt analysis):**
-- 438 total attempts across 30 clinicians × 3 devices × 5 rounds
-- −24 from 3 discontinued participants → 414 primary attempts
-- −11 mapping failures (no AOI-mapped gaze) → 403 gaze-valid attempts
-
-**Exclusion flow (MST phase analysis):**
-- 137 MST attempts total
-- −10 multi-puncture (>1 needle insertion) → 127
-- −3 zero-gaze mapping failures (all from P2, Recording 16) → 124 phase-analysed attempts
-- Of these, 107 have all 5 phases; 17 have fewer
-
-### Step 2: Procedural Success GEE (`02_procedural_success_gee.py`)
-
-Logistic GEE with exchangeable working correlation, clustered by participant:
-- Outcome: first-attempt success (binary)
-- Predictors: device, experience stratum, repetition, attempt sequence
-- Contrasts: pairwise device comparisons with Holm correction
-- Both three-level and binary experience specifications
-
-### Step 3: Confirmatory Fixation Models (`03_confirmatory_fixation_models.py`)
-
-Two model families for the 403 gaze-valid attempts:
-
-**Fixation count:** Negative-binomial GEE with log(attempt duration) offset, clustered by participant. Reports incidence rate ratios (IRR).
-
-**Mean fixation duration:** Linear mixed-effects model on log-transformed duration with participant random intercept.
-
-Both models: device + experience + repetition + attempt sequence. Pairwise contrasts with Holm correction.
-
-### Step 4: Saccade Analysis (`04_saccade_analysis.py`)
-
-- Saccade rate: NB-GEE with log(duration) offset
-- Mean saccadic amplitude: Gaussian GEE on log-transformed values
-- Same predictor structure as Step 3
-
-### Step 5: Duration Sensitivity (`05_fixation_duration_sensitivity.py`)
-
-Two robustness checks for fixation duration:
-1. Attempt-level **median** fixation duration (LMM, log-transformed)
-2. **Trimmed mean** excluding individual fixation events >10 s (LMM, log-transformed)
-
-### Step 6: Temporal Tercile Analysis (`06_temporal_tercile_analysis.py`)
-
-NB-GEE with Device × Tercile interaction, participant clustering:
-- Each attempt divided into three equal-duration temporal terciles (T1, T2, T3)
-- Tests whether fixation-rate decline across attempt phases differs by device
-- Reports marginal tercile contrasts and device-specific tercile contrasts
-- Main-effects (no interaction) model for comparison
-
-### Step 7: MST Phase Analysis (`07_mst_phase_analysis.py`)
-
-Phase-level fixation-rate analysis across the five Seldinger phases of MST insertion:
-- **Primary:** Poisson GEE with clinician clustering, Pre-needle as reference
-- **Sensitivity:** NB-GEE with identical specification
-- 10 pairwise phase contrasts with Holm correction
-
-### Step 8: Bayesian Sensitivity (`08_bayesian_sensitivity.py`)
-
-Three PyMC cell-means models with participant random intercepts:
-1. **Fixation count:** negative-binomial, log(attempt seconds) offset
-2. **Fixation duration:** log-normal on seconds
-3. **Procedural success:** Bernoulli (logit-link)
-
-Priors: Normal(0, 2) cell means, HalfNormal(0.5) participant SD, HalfNormal(1) residual SD.
-Sampling: 4 chains × 2000 post-warmup draws, 1000 warmup, target_accept = 0.95.
-
-### Step 9: 30-Clinician Sensitivity (`09_thirty_clinician_sensitivity.py`)
-
-Robustness check: refit NB-GEE fixation-count model on all 30 recruited clinicians (including 3 discontinued: P7, P8, P14). All 24 discontinued-clinician attempts coded as unsuccessful.
-
-### Step 10: Figure Generation (`10_generate_figures.py`)
-
-Generates Figures 3–6:
-- **Figure 3:** Analysis flow diagram (participant/attempt exclusion)
-- **Figure 4:** Bayesian posterior forest plot (fixation count IRR)
-- **Figure 5:** Temporal tercile fixation distributions by device
-- **Figure 6:** MST Seldinger phase fixation-rate profiles
+**Terminology.** The parent study protocol refers to these devices as midline catheters,
+reflecting the nomenclature current when it was written. At 8 cm insertable length they fall
+within the long peripheral catheter category under current definitions. **LPC is used
+throughout this repository and in all associated manuscripts; MLC is not used.**
 
 ## Key Technical Details
 
-### Eye-Tracking Hardware and Software
-- **Device:** Tobii Pro Glasses 3 (100 Hz binocular)
-- **Software:** Tobii Pro Lab v1.183
-- **Fixation filter:** I-VT (Attention), velocity threshold 30°/s, minimum fixation duration 60 ms
-- **AOI mapping:** Assisted mapping to two reference surfaces (ultrasound screen, simulator screen) via Tobii Pro Lab's surface-mapping feature
+### Devices
 
-### Clock Synchronisation
-Procedure timestamps (needle-in, wire-in, etc.) were recorded within Tobii Pro Lab's own timeline using the software's event-marking interface. Both the eye-tracking data stream (`Recording timestamp`) and the procedure events share a common zero (recording start), eliminating the need for external clock synchronisation. The `Computer timestamp` column in the TSV exports provides the concurrent laptop clock for audit purposes, with millisecond-level alignment verified via the recording start time metadata (e.g., `11:32:52.679`).
+All three are LPCs of equivalent 8 cm insertable length, differing in insertion mechanism:
 
-### Device Coding
-| Code | Device | Colour |
-|------|--------|--------|
-| DEVICE1 / MST | Micro-Short-over-the-Needle Technique | #4CAF50 (green) |
-| DEVICE2 / ATG | Accelerated Technique with Guide | #2196F3 (blue) |
-| DEVICE3 / CON | Conventional over-the-needle | #FF9800 (orange) |
+| Code | Configuration | Description |
+|---|---|---|
+| DEVICE1 / MST | Modified Seldinger technique | 2 Fr catheter placed over a guidewire with a peel-away introducer |
+| DEVICE2 / ATG | Accelerated technique with guidewire | 22 G integrated catheter with a preloaded guidewire |
+| DEVICE3 / CON | Catheter-over-needle | Catheter advanced directly over the introducer needle; no wire or introducer |
 
-### Zero-Gaze Verification
-The 3 MST attempts excluded as "zero gaze" (P2_T6_DEVICE1-2, P2_T11_DEVICE1-4, P2_T13_DEVICE1-5) are from P2's Recording 16, in which **all 8 attempts across all 3 devices** had zero AOI-mapped fixations despite high valid-sample proportions (>91%). This pattern indicates a session-wide scene-to-AOI mapping failure, not a behavioural choice. The eye tracker was functioning normally; the gaze-to-surface mapping was unsuccessful for this entire recording session. See `data/processed/attempts_with_zero_mapped_fixations.csv` for the full list of 11 affected attempts (8 from P2 Recording 16, 3 from P27 Recording 71).
+### Eye-tracking hardware and software
 
-### Statistical Models
-- **GEE:** Participant-clustered with exchangeable working correlation, bias-reduced covariance (statsmodels)
-- **Bayesian:** Cell-means parameterisation (one parameter per device level), participant random intercepts, weakly informative priors. Posteriors described with HDI-based language, not frequentist "significant/non-significant".
-- **MST phase analysis:** Poisson GEE with clinician clustering, Pre-needle as reference. Holm correction across 10 pairwise comparisons. NB-GEE sensitivity check.
-- **Temporal tercile:** NB-GEE with Device × Tercile interaction to test differential fixation-rate decline across attempt phases.
+- **Device:** Tobii Pro Glasses 3, binocular
+- **Analysed sampling:** 20 ms sample interval (50 Hz) throughout the exported data
+- **Software:** Tobii Pro Lab 25.23.1545 (the application updates automatically; earlier
+  processing steps may have used an earlier build)
+- **Gaze filter:** Tobii **I-VT (Attention)**, confirmed in the `Recording Fixation filter name`
+  column of all 59 exports. Full configuration:
+
+| Setting | Value |
+|---|---|
+| Gap fill-in (interpolation) | Disabled (max gap length setting 75 ms) |
+| Noise reduction | Moving median, window 3 samples |
+| Velocity calculator window length | 20 ms |
+| I-VT classifier threshold | **100 °/s** |
+| Merge adjacent fixations | Enabled — max 75 ms, max 0.5° |
+| Discard short fixations | Enabled — minimum fixation duration 60 ms |
+| Reclassify discarded as saccade | Disabled |
+
+At a 100 °/s threshold, slower gaze shifts, smooth pursuit and vestibulo-ocular compensation are
+absorbed into the fixation class. Classified fixations are therefore best understood as periods
+of sustained attention to the ultrasound display rather than classical foveal fixations.
+
+- **AOI mapping:** assisted (semi-automatic) real-world mapping to the ultrasound display
+
+### Event extraction rules
+
+Ultrasound-mapped gaze events are identified as follows:
+
+1. Retain rows where `Sensor == "Eye Tracker"`.
+2. **Fixation event:** mapped type `fixation`, non-null mapped event index, **and** non-null
+   `Mapped fixation X/Y [US]`.
+3. **Saccade event:** mapped type `saccade` and non-null mapped event index. Saccades have no
+   mapped coordinate, so the coordinate requirement does not apply.
+4. Group samples sharing an event index into one event; event midpoint = (min + max timestamp) / 2.
+5. Assign each event to the attempt whose interval contains its **midpoint**, inclusive at both
+   ends, so every event counts once and events spanning consecutive attempts are not double-counted.
+
+### Device coding
+
+`DEVICE1 = MST`, `DEVICE2 = ATG`, `DEVICE3 = CON`, per the table above.
+
+### Exclusion flow (whole-attempt analysis)
+
+- 438 recorded attempt rows from 30 clinicians
+- −24 attempts from 3 clinicians who discontinued → **414** non-aborted attempts
+- −11 technical mapping failures → **403** gaze-valid attempts
+
+Configuration counts across the 414: ATG 141, CON 136, MST 137. Of the 414, 405 are the
+scheduled five-per-configuration attempts; nine are additional participant-initiated retries
+(six ATG, one CON, two MST). A protocol-only sensitivity analysis restricted to the first five
+observed repetitions per configuration yields exactly 135 per configuration.
+
+### Zero-gaze verification
+
+The 11 mapping failures comprise 8 attempts from P2 (Recording 16) and 3 from P27
+(Recording 71). In the former, all 8 attempts across all 3 configurations returned zero mapped
+fixations despite valid-sample proportions above 91%, indicating a session-wide scene-to-surface
+mapping failure rather than absence of ultrasound viewing.
+
+### Device-identity review
+
+A review of 18 MST-labelled attempts proposed two reassignments (P6_T11 → ATG, P19_T03 → CON).
+Both were **rejected** on adjudication against the session phase records: each carries a complete
+Seldinger phase sequence, including guidewire-in and guidewire-out timestamps for P19_T03, which
+is incompatible with the guidewire-free CON configuration. The original workbook identities are
+retained for all 414 attempts.
+
+### Statistical models
+
+- **GEE:** participant-clustered, exchangeable working correlation, bias-reduced covariance
+- **Counts:** negative binomial with log attempt-duration offset
+- **Grip:** nominal (multinomial) GEE, global odds-ratio working structure, IPG reference
+- **Software:** Python 3.14.5, statsmodels 0.14.6, scipy 1.17.1, numpy 2.4.6, pandas 3.0.3
 
 ## Data Availability
 
-**Raw data** (59 Tobii TSV exports, ~1–50 MB each; `insertion.xlsx` observation log) are not included in this repository due to size and participant-privacy considerations. They are available from the corresponding author upon reasonable request, subject to ethics-board approval.
-
-**Processed datasets** (`data/processed/`) contain de-identified attempt-level summaries and are included.
+Raw data (59 Tobii TSV exports; `insertion.xlsx` observation log) are not included, for size and
+participant-privacy reasons. Processed datasets in `data/processed/` contain de-identified
+attempt-level summaries.
 
 ## Requirements
 
 ```
-Python ≥ 3.9
+Python >= 3.9
 numpy, pandas, scipy, statsmodels, openpyxl
-matplotlib, seaborn                          # figures
-pymc ≥ 5.0, arviz ≥ 0.15                    # Bayesian models (Step 8 only)
+matplotlib, seaborn        # figures
+pymc >= 5.0, arviz >= 0.15 # Bayesian sensitivity models only
 ```
 
-Install: `pip install -r requirements.txt`
+---
 
-**Note:** PyMC and ArviZ are only required for `08_bayesian_sensitivity.py`. All other scripts run with the core statistical stack (numpy, pandas, scipy, statsmodels).
+# CHANGELOG — corrections applied to this README
 
-## Reproduction
+The previous version of this README contained the following errors. Each is corrected above.
+Anyone who cloned the repository before this revision should re-read this section.
 
-1. Place raw TSV files and `insertion.xlsx` in `data/raw/`
-2. Run scripts in order: `python scripts/01_extract_fixations.py` through `10_generate_figures.py`
-3. Each script auto-detects input files and writes results to `results/`
+| # | Previous text | Corrected to | Why |
+|---|---|---|---|
+| 1 | "midline catheter insertion" throughout | long peripheral catheter (LPC) | The devices are 8 cm insertable length and are classified as LPCs. MLC is not used in any associated manuscript. |
+| 2 | "Tobii Pro Glasses 3 (100 Hz)" | 20 ms sample interval, 50 Hz | Every row of the analysis dataset and the extracted event file carries a 20 ms interval; none carries 10 ms. |
+| 3 | "I-VT fixation filter: velocity threshold 30°/s" (Study Overview) | I-VT (Attention), threshold 100 °/s | The filter name is recorded in all 59 exports; the threshold is read from the Pro Lab gaze-filter settings. 30 °/s is the I-VT (Fixation) default and was never applied. |
+| 4 | "I-VT (Attention), velocity threshold 30°/s" (Technical Details) | as above | The README previously named two different filters in two places, and gave the wrong threshold in both. |
+| 5 | "Tobii Pro Lab v1.183" | 25.23.1545 | Pro Lab updates automatically; the version above is that used for the final analysis. |
+| 6 | "DEVICE1 / MST = Micro-Short-over-the-Needle Technique" | Modified Seldinger Technique | MST is the modified Seldinger technique. The previous expansion was incorrect. |
+| 7 | "DEVICE2 / ATG = Accelerated Technique with Guide" | Accelerated Technique with Guidewire | Completed the term. |
+| 8 | "DEVICE3 / CON = Conventional over-the-needle" | Catheter-over-needle | Matches the manuscripts. |
+| 9 | "randomised crossover study" | counterbalanced, repeated-measures | Allocation sequences were generated with a large language model rather than a validated pseudorandom generator, and no seed was retained, so the design is counterbalanced but not verifiably random. This is a deviation from the parent protocol, which specified a randomisation calculator. |
+| 10 | "438 total attempts across 30 clinicians × 3 devices × 5 rounds" | 438 recorded attempt rows | 30 × 3 × 5 = 450, not 438. The arithmetic did not hold. |
+| 11 | "procedural success (first-attempt catheter placement)" | eventual procedural success | Ten attempts record two or more needle-entry events and seven of those are coded successful, which is impossible under a first-puncture definition. See CODEBOOK correction below. |
+| 12 | Event extraction rules absent | documented above | Fixation- and saccade-event rates are wholly determined by the filter settings and the assignment rule; neither was previously stated. |
 
-Scripts 06–10 depend only on processed data files in `data/processed/` and can be run independently of Steps 1–5.
+## CODEBOOK.md — correction applied
 
+`CODEBOOK.md` previously defined:
 
+```
+| Success | int | First-attempt catheter placement: 1=success, 0=failure |
+```
+
+That definition was wrong. Ten of the 414 attempts record two or more needle-entry events and
+seven of those are coded successful, which is impossible under a first-puncture definition.
+`CODEBOOK.md` now defines `Success` as eventual procedural success within the attempt,
+requiring vessel puncture, catheter advancement, simulated blood return, aspiration and flush,
+and ultrasound-confirmed intraluminal position, with multiple skin punctures permitted and no
+time limit imposed.
+
+The source column in the observation log is labelled `FTIS`. That label is a misnomer for a
+variable recording eventual success; it is annotated as such in `CODEBOOK.md` and should be
+renamed in the log itself.
+
+`CODEBOOK.md` also now warns that `CON` carries two unrelated meanings in this dataset: in
+`Phase` it abbreviates *catheter advance*, a step within the modified Seldinger technique,
+while in `Device_name` it denotes the *catheter-over-needle configuration*. Phase records
+exist only for MST attempts.
+
+## Verification
+
+The corrected rules reproduce the stored `Fixation_count` for all 403 gaze-valid attempts with
+zero discrepancies, and refitting the gaze models reproduces the stored outputs exactly
+(fixation α = 0.629452, χ²(2) = 74.68; saccade α = 0.754335, χ²(2) = 70.86).
