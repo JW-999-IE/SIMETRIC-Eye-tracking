@@ -23,3 +23,6 @@ desktop.ini
 # Temporary
 *.tmp
 *.bak
+SIMETRIC_BRM_manuscript*.docx
+Supplementary_Table_S1_R43*
+figures_hires/
