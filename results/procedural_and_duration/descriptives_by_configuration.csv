@@ -1,0 +1,4 @@
+configuration,attempts,successes,median_duration_s,q1,q3
+ATG,141,92,112.8,79.6,155.9
+CON,136,107,92.2,71.9,134.2
+DST,137,113,176.3,125.8,271.8

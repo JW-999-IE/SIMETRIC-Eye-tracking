@@ -1,0 +1,4 @@
+contrast,n_refits,n_holm_significant,ratio_min,ratio_max
+CON vs ATG,27,11,1.78,2.233
+CON vs DST,27,0,0.669,0.898
+DST vs ATG,27,27,2.252,3.051

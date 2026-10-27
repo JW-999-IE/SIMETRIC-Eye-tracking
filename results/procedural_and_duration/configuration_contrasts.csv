@@ -1,0 +1,10 @@
+model,contrast,ratio,ci_low,ci_high,p,p_holm,omnibus_chi2_2df,omnibus_p
+success_all_414 (OR),CON vs ATG,2.0031,1.0968,3.6585,0.0238,0.0476,10.4035,0.0055
+success_all_414 (OR),DST vs ATG,2.5457,1.3702,4.7297,0.0031,0.0093,10.4035,0.0055
+success_all_414 (OR),CON vs DST,0.7869,0.3936,1.5731,0.4977,0.4977,10.4035,0.0055
+success_scheduled_405 (OR),CON vs ATG,1.968,1.0537,3.6756,0.0337,0.0673,9.6087,0.0082
+success_scheduled_405 (OR),DST vs ATG,2.5339,1.3422,4.7837,0.0041,0.0124,9.6087,0.0082
+success_scheduled_405 (OR),CON vs DST,0.7767,0.3802,1.5864,0.4879,0.4879,9.6087,0.0082
+duration_all_414 (GMR),CON vs ATG,0.858,0.7732,0.9522,0.004,0.004,80.7255,0.0
+duration_all_414 (GMR),DST vs ATG,1.6297,1.4164,1.8751,0.0,0.0,80.7255,0.0
+duration_all_414 (GMR),CON vs DST,0.5265,0.4577,0.6057,0.0,0.0,80.7255,0.0
