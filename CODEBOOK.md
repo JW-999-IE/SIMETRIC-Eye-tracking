@@ -8,7 +8,7 @@ The primary analysis dataset: 403 gaze-valid, non-aborted attempts from 27 clini
 |----------|------|-------------|
 | Attempt_ID | string | Unique identifier: `{Participant}_T{trial}_{DeviceCode}_{row}` |
 | Participant | string | De-identified clinician code (P1–P30, excluding P7, P8, P14) |
-| Device_name | string | Device: MST, ATG, or CON |
+| Device_name | string | Device: DST, ATG, or CON |
 | Expertise | string | Prior experience: Expert, Intermediate, or Novice |
 | Repetition | int | Within-device repetition (1–5) |
 | Attempt_sequence | int | Chronological attempt number within session (1–15) |
@@ -32,9 +32,9 @@ The primary analysis dataset: 403 gaze-valid, non-aborted attempts from 27 clini
 | Catheter Over Needle (ms) | float | Timestamp of catheter advance |
 | Wire Out (ms) | float | Timestamp of guidewire removal |
 
-## phase_analysis_mst_phases.csv
+## phase_analysis_dst_phases.csv
 
-MST-only phase-level data: 590 rows from 124 attempts × up to 5 phases.
+DST-only phase-level data: 590 rows from 124 attempts × up to 5 phases.
 
 | Variable | Type | Description |
 |----------|------|-------------|
@@ -57,7 +57,7 @@ Phase names use the corrected terminology:
 > labels it abbreviates *catheter advance*, a step within the modified
 > Seldinger technique. In `Device_name` it denotes the *catheter-over-needle
 > configuration*, which is a separate device arm. These phases exist only for
-> MST attempts; CON-configuration attempts have no phase records at all. Do
+> DST attempts; CON-configuration attempts have no phase records at all. Do
 > not join or filter on the string `CON` across the two columns.
 
 ## phase_analysis_temporal_thirds.csv
